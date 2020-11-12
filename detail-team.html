@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Bolaku</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="stylesheet" href="css/materialize.min.css" />
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="stylesheet" href="css/style.css" />    
+  <meta name="theme-color" content="#01579b" />
+  <link rel="icon" type="image/png" href="/icon.png"/>
+  <meta property="og:image:width" content="700">
+  <meta property="og:image:height" content="350">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Bolaku">
+  <meta property="og:title" content="Situs Berita Bola." />
+  <meta property="og:description" content="Situs Berita Bol Dengan Berbagai Fitur" />
+  <meta name="author" content="r3ndyCoder433"> 
+  <meta property="language" content="Indonesia">  
+</head>
+  <body>
+    <div class="loading" id="loading">Loading&#8230;</div>
+    <!-- Navigasi -->
+    <nav class="light-blue lighten-1" role="navigation">
+      <div class="nav-wrapper container">
+        <a href="/" class="brand-logo" id="logo-container">BolaKu</a>
+        <a href="#" class="sidenav-trigger" data-target="nav-mobile">&#9776;</a>
+
+        <ul class="topnav right hide-on-med-and-down">
+        </ul>
+        <ul class="sidenav" id="nav-mobile">
+        </ul>
+      </div>
+    </nav>
+    <!-- Akhir Navigasi -->
+    
+    <div class="container" id="body-content">
+      <div class="row">
+        <div class="col lg-4 sm-12 m4 team-ico">
+          <div id="icon"></div>      
+          <div id="nameTeam" class="team"></div>
+        </div>
+        <div class="col lg-8 sm-12 m8" id="detail-team-information">
+          <div id="shortname" class="team"></div>
+          <div id="addressteam" class="team"></div>
+          <div id="country" class="team"></div>
+          <div id="phonenumber" class="team"></div>
+          <div id="website" class="team"></div>
+          <div id="emailaddress" class="team"></div>
+          <div id="clubcolors" class="team"></div>
+          <div id="stadium" class="team"></div>
+          <div id="lastupdate" class="team"></div>          
+        </div>
+      </div>
+      <center><h3>Daftar Pemain</h3></center>
+      <div class="container" id="squad-container">
+        <ul id="squad-left">
+        </ul> 
+        <ul id="squad-right">
+        </ul>
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="fixed-action-btn">
+        <a class="btn-floating btn-large red" id="save">
+          <i class="large material-icons">favorite</i>
+        </a>
+      </div>      
+    </div>
+
+    <div class="free"></div>
+
+    <script src="js/materialize.min.js"></script>
+    <script src="js/nav.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/idb.js"></script>
+    <script src="js/db.js"></script>    
+    <script>
+      // REGISTER SERVICE WORKER
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", function() {
+          navigator.serviceWorker
+            .register("/service-worker.js")
+            .then(function() {
+              console.log("Pendaftaran ServiceWorker berhasil");
+            })
+            .catch(function() {
+              console.log("Pendaftaran ServiceWorker gagal");
+            });
+        });
+      } else {
+        console.log("ServiceWorker belum didukung browser ini.");
+      }
+
+      window.onload = () => {
+        document.getElementById('loading').style.visibility = "inline"; 
+      };
+
+      document.addEventListener("DOMContentLoaded", function() {
+        let teamId = new URLSearchParams(window.location.search).get('id');
+        let urlsParams = new URLSearchParams(window.location.search);
+        let isFromSaved = urlsParams.get('saved');
+        let btnSave = document.getElementById('save');
+        let item = '';
+
+        if(isFromSaved) {
+          // Hide fab jika dimuat dari indexed db
+          btnSave.style.display = 'none';
+          // Ambil artikel lalu tampilkan
+          getSavedFavoritTeamId();
+        } else {
+          item = getDetailTeam(teamId);
+        }
+      
+        btnSave.onclick = function() {
+          console.log('Tombol FAB di Klik');
+          item.then(function(article) {
+            console.log('detail page: ', item)
+            saveForLater(article);
+            showNotifikasiGambar(article);
+          });
+        }
+      });
+
+      // Notifikasi Ketika Berhasil Menyimpan Team Favorit
+      function showNotifikasiGambar(item) {
+        const title = 'Menambahkan Team Favorit';
+        const options = {
+          'body': `Berhasil Menambahkan TEAM ${item.name} Kedalam Daftar Team Favorit`,
+          'image': `${item.crestUrl}`
+        };
+        if (Notification.permission === 'granted') {
+          navigator.serviceWorker.ready.then(function(registration) {
+            registration.showNotification(title, options);
+          });
+        } else {
+          console.error('Fitur notifikasi tidak diijinkan.');
+        }
+      }
+    </script>
+  </body>
+</html>
+
+ 
+
