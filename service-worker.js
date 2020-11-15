@@ -1,13 +1,14 @@
-const CACHE_NAME = "bolaku-v2";
+const CACHE_NAME = "bolaku-v3";
 let urlsToCache = [
   "/",
   "/nav.html",
   "/index.html",
-  "/klasemen.html",
-  "/jadwal-pertandingan.html",
-  "/detail-team.html",
+  "/pages/klasemen.html",
+  "/pages/jadwal-pertandingan.html",
+  "/pages/detail-team.html",
   "/pages/home.html",
-  "/saved.html",
+  "/pages/saved.html",
+  "/pages/404.html",
   "/push.js",
   "/js/materialize.min.js",
   "/js/nav.js",
@@ -23,6 +24,7 @@ let urlsToCache = [
   "/img/liga-champions.jpg",
   "/img/liga-inggris.jpg",
   "/img/serie-A.jpg",
+  "/img/profile-dicoding.jpg",
   "/img/stadium-wallpaper.jpg",
   "/manifest.json",
 ];

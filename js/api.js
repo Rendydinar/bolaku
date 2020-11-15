@@ -1,4 +1,3 @@
-let klasemen = new URLSearchParams(window.location.search).get('liga');
 const base_url = 'https://api.football-data.org/'; 
 const optionsAPIRequest = {
   method: 'GET',
@@ -11,7 +10,7 @@ const colorMix = ['red', 'pink', 'purple', 'indigo', 'blue', 'light-blue', 'cyan
 
 const getKlasemenLiga = (idKlasemen) => {
   if('caches' in window) {
-    caches.match(base_url + `v2/competitions/${idKlasemen}/standings`).then(function(response) {
+    caches.match(base_url + `v2/competitions/${idKlasemen}/standings`, optionsAPIRequest).then(function(response) {
       if(response) {
         response.json().then(function (data) {
           document.getElementById('loading').style.visibility = "hidden"; 
@@ -19,6 +18,11 @@ const getKlasemenLiga = (idKlasemen) => {
         });
       }
     })
+    .catch(err => {
+      console.error(err);
+      document.getElementById('loading').style.visibility = "hidden"; 
+      document.querySelector('#body-content').innerHTML = "<h1>Error</h1>";
+    });
   }
 
   fetch(`${base_url}v2/competitions/${idKlasemen}/standings`, optionsAPIRequest)
@@ -35,12 +39,13 @@ const getKlasemenLiga = (idKlasemen) => {
 }
 
 const getKlasemenLigaChampion = () => {
+  document.querySelector('#body-content').innerHTML = `<h1><div class="loading" id="loading">Loading&#8230;</div></h1>`;
   if('caches' in window) {
-    caches.match(base_url + `v2/competitions/2001/standings`).then(function(response) {
+    caches.match(base_url + `v2/competitions/2001/standings`, optionsAPIRequest).then(function(response) {
       if(response) {
         response.json().then(function (data) {
           document.getElementById('loading').style.visibility = "hidden"; 
-          showDataKlasemen(data);
+          showDataKlasemenLigaChampion(data);
         });
       }
     })
@@ -61,7 +66,7 @@ const getKlasemenLigaChampion = () => {
 
 const getJadwalPertandingan = (teamId) => {
   if('caches' in window) {
-    caches.match(base_url + `v2/teams/${teamId}/matches?status=SCHEDULED`).then(function(response) {
+    caches.match(base_url + `v2/teams/${teamId}/matches?status=SCHEDULED`, optionsAPIRequest).then(function(response) {
       if(response) {
         response.json().then(function (data) {
           document.getElementById('loading').style.visibility = "hidden"; 
@@ -87,7 +92,7 @@ const getJadwalPertandingan = (teamId) => {
 const getDetailTeam = (idTeam) => {
   return new Promise(function(resolve, reject) {
     if('caches' in window) {
-      caches.match(base_url + `v2/teams/${idTeam}`).then(function(response) {
+      caches.match(base_url + `v2/teams/${idTeam}`, optionsAPIRequest).then(function(response) {
         if(response) {
           response.json().then(function (data) {
             document.getElementById('loading').style.visibility = "hidden"; 
@@ -115,6 +120,7 @@ const getDetailTeam = (idTeam) => {
 }
 
 const showDataKlasemen = (data) => {
+  console.log(data)
   document.querySelector('#title-liga').textContent = data.competition.name;
   document.querySelector('#season').textContent = `Season: ${data.season.startDate} - ${data.season.endDate}`;
   let thNo = '';
@@ -122,7 +128,7 @@ const showDataKlasemen = (data) => {
     document.querySelector('#data-liga').innerHTML +=  
       `<tr>
           <td> ${tim.position} </td>
-          <td class="name-ico"><img src="${tim.team.crestUrl}" width="60" height="60"\> <a href=/detail-team.html?id=${tim.team.id}>${tim.team.name}</a></td>
+          <td class="name-ico"><img src="${tim.team.crestUrl}" width="60" height="60"\> <a href=#detailteam?id=${tim.team.id}>${tim.team.name}</a></td>
           <td> ${tim.playedGames} </td>
           <td> ${tim.won} </td>
           <td> ${tim.draw} </td>
@@ -131,7 +137,7 @@ const showDataKlasemen = (data) => {
           <td> ${tim.goalsAgainst} </td>
           <td> ${tim.goalDifference} </td>
           <td> ${tim.points} </td>
-          <td> <a href=/jadwal-pertandingan.html?id=${tim.team.id}>Lihat Jadwal Pertandingan</a></td>
+          <td> <a href=#jadwalpertandingan?id=${tim.team.id}>Lihat Jadwal Pertandingan</a></td>
 
         </tr>
       `;
@@ -163,7 +169,7 @@ const setTableKlasemenLigaChampion = (data) => {
     groupTD += `
       <tr>
         <td>${dataGroup.position}<td>
-        <td class="name-ico"><img src="${dataGroup.team.crestUrl}" width="60" height="60"\> <a href=/detail-team.html?id=${dataGroup.team.id}>${dataGroup.team.name}</a></td>
+        <td class="name-ico"><img src="${dataGroup.team.crestUrl}" width="60" height="60"\> <a href=#detailteam?id=${dataGroup.team.id}>${dataGroup.team.name}</a></td>
         <td>${dataGroup.playedGames}<td>
         <td>${dataGroup.won}<td>
         <td>${dataGroup.draw}<td>
@@ -172,7 +178,7 @@ const setTableKlasemenLigaChampion = (data) => {
         <td>${dataGroup.goalsAgainst}<td>
         <td>${dataGroup.goalDifference}<td>
         <td>${dataGroup.points}<td>
-        <td><a href=/jadwal-pertandingan.html?id=${dataGroup.team.id}>Lihat Jadwal Pertandingan</a></td>
+        <td><a href=#jadwalpertandingan?id=${dataGroup.team.id}>Lihat Jadwal Pertandingan</a></td>
       </tr>
     `;
   })
@@ -205,28 +211,28 @@ const setTableKlasemenLigaChampion = (data) => {
 }
 
 const showDataKlasemenLigaChampion = (data) => {
-  document.querySelector('#data-info').innerHTML = '';
-  document.querySelector('#title-liga').textContent = data.competition.name;
-  document.querySelector('#season').textContent = `Season: ${data.season.startDate} / ${data.season.endDate}`;
-  let h4 = document.createElement('h4').textContent = data.competition.lastUpdated;
+    document.querySelector('#data-info').innerHTML = '<p></p>';
+    document.querySelector('#title-liga').textContent = data.competition.name;
+    document.querySelector('#season').textContent = `Season: ${data.season.startDate} / ${data.season.endDate}`;
+    let h4 = document.createElement('h4').textContent = data.competition.lastUpdated;
 
-  let groupA = data.standings.filter(team => team.group === 'GROUP_A');
-  let groupB = data.standings.filter(team => team.group === 'GROUP_B');
-  let groupC = data.standings.filter(team => team.group === 'GROUP_C');
-  let groupD = data.standings.filter(team => team.group === 'GROUP_D');
-  let groupE = data.standings.filter(team => team.group === 'GROUP_E');
-  let groupF = data.standings.filter(team => team.group === 'GROUP_F');
-  let groupG = data.standings.filter(team => team.group === 'GROUP_G');
-  let groupH = data.standings.filter(team => team.group === 'GROUP_H');
+    let groupA = data.standings.filter(team => team.group === 'GROUP_A');
+    let groupB = data.standings.filter(team => team.group === 'GROUP_B');
+    let groupC = data.standings.filter(team => team.group === 'GROUP_C');
+    let groupD = data.standings.filter(team => team.group === 'GROUP_D');
+    let groupE = data.standings.filter(team => team.group === 'GROUP_E');
+    let groupF = data.standings.filter(team => team.group === 'GROUP_F');
+    let groupG = data.standings.filter(team => team.group === 'GROUP_G');
+    let groupH = data.standings.filter(team => team.group === 'GROUP_H');
 
-  setTableKlasemenLigaChampion(groupA[0]);
-  setTableKlasemenLigaChampion(groupB[0]);
-  setTableKlasemenLigaChampion(groupC[0]);
-  setTableKlasemenLigaChampion(groupD[0]);
-  setTableKlasemenLigaChampion(groupE[0]);
-  setTableKlasemenLigaChampion(groupF[0]);
-  setTableKlasemenLigaChampion(groupG[0]);
-  setTableKlasemenLigaChampion(groupH[0]);
+    setTableKlasemenLigaChampion(groupA[0]);
+    setTableKlasemenLigaChampion(groupB[0]);
+    setTableKlasemenLigaChampion(groupC[0]);
+    setTableKlasemenLigaChampion(groupD[0]);
+    setTableKlasemenLigaChampion(groupE[0]);
+    setTableKlasemenLigaChampion(groupF[0]);
+    setTableKlasemenLigaChampion(groupG[0]);
+    setTableKlasemenLigaChampion(groupH[0]);
 }
 
 const showDataDetailTeam = (data) => {
@@ -255,22 +261,6 @@ const showDataDetailTeam = (data) => {
   }
 }
  
-if (new URLSearchParams(window.location.search).has('liga')) {
-  switch (klasemen) {
-    case '2021' : 
-    case '2014' : 
-    case '2019' :
-      getKlasemenLiga(klasemen);
-      break; 
-    case 'champions' : 
-      getKlasemenLigaChampion();
-      break;
-    default:
-      alert('klasemen Tidak Ditemukan');
-      break;
-  }
-} 
-
 function getSavedFavoritTeams() {
   getAll().then(function(favoriteTeams) {
     if(favoriteTeams.length > 0) {
@@ -283,7 +273,7 @@ function getSavedFavoritTeams() {
               <div class="card">
                 <div class="card-image">
                   <img src="${team.crestUrl}" alt="">
-                  <a href="/detail-team.html?id=${team.id}&saved=true" class="halfway-fab btn-floating pink pulse">
+                  <a href="#detailteam?id=${team.id}&saved=true" class="halfway-fab btn-floating pink pulse">
                     <i class="material-icons">visibility</i>
                   </a>
                 </div>
@@ -309,8 +299,7 @@ function getSavedFavoritTeams() {
 }
 
 function getSavedFavoritTeamId() {
-  let urlParams = new URLSearchParams(window.location.search);
-  let idParam = urlParams.get("id");
+  let idParam = window.location.hash.slice(15,window.location.hash.indexOf('&'));
   getById(idParam).then(function(data) {
     document.getElementById('loading').style.visibility = "hidden"; 
     document.querySelector("#icon").innerHTML = `<img src="${data.crestUrl}" height="320" width="230"></img>`
@@ -365,4 +354,25 @@ function deleteFavoriteTeam(event) {
   .catch(err => {
     console.log('Gagal Delete', err);
   }); 
+}
+
+const showHome = () => {
+  let xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    console.log(xhttp.responseText)
+    if (this.readyState == 4) {
+      let content = document.querySelector("#body-content");
+      if (this.status == 200) {
+        content.innerHTML = xhttp.responseText;
+      } else if (this.status == 404) {
+        content.innerHTML = "<p>Halaman tidak ditemukan.</p>";
+      } else {
+        content.innerHTML = "<p>Ups.. halaman tidak dapat diakses.</p>";
+      }
+    }
+  };
+
+  xhttp.open("GET", "pages/home.html", true);  
+  xhttp.send();
+
 }
