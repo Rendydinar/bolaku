@@ -116,7 +116,6 @@ const getDetailTeam = (idTeam) => {
 }
 
 const showDataKlasemen = (data) => {
-  console.log(data)
   document.querySelector('#title-liga').textContent = data.competition.name;
   document.querySelector('#season').textContent = `Season: ${data.season.startDate} - ${data.season.endDate}`;
   let thNo = '';
