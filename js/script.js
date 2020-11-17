@@ -8,32 +8,11 @@ document.addEventListener('DOMContentLoaded', function(){
 
 });
 
-// REGISTER SERVICE WORKER
-if ("serviceWorker" in navigator) {
-registerServiceWorker();
-} else {
-console.log("ServiceWorker belum didukung browser ini.");
-}
-
 // Periksa fitur Notification API
 if('Notification' in window) {
 requestPermission();
 } else {
 console.error('browser tidak mendukung notifikasi');
-}
-
-// Register service worker
-function registerServiceWorker() {
-window.addEventListener("load", function() {
-  navigator.serviceWorker
-    .register("/service-worker.js")
-    .then(function() {
-      console.log("Pendaftaran ServiceWorker berhasil");
-    })
-    .catch(function() {
-      console.log("Pendaftaran ServiceWorker gagal");
-    });
-});
 }
 
 function requestPermission() {
