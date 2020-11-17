@@ -135,6 +135,10 @@ function requestApi() {
         btnSave.onclick = function() {
           console.log('Tombol FAB di Klik');
           item.then(function(article) {
+<<<<<<< HEAD
+=======
+            console.log('detail page: ', item)
+>>>>>>> f55d16d26ab1b116d932a50ec19dd7fe6c63f6fb
             saveForLater(article);
             showNotifikasiGambar(article);
           });
