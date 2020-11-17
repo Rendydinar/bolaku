@@ -1,9 +1,5 @@
-<<<<<<< HEAD
 const base_url = 'https://api.football-data.org/';
 const API_KEY = '32be0388057040128d81bba39ce7551d';
-=======
-const base_url = 'https://api.football-data.org/'; 
->>>>>>> f55d16d26ab1b116d932a50ec19dd7fe6c63f6fb
 const optionsAPIRequest = {
   method: 'GET',
   headers: {
@@ -359,10 +355,6 @@ function deleteFavoriteTeam(event) {
 const showHome = () => {
   let xhttp = new XMLHttpRequest();
   xhttp.onreadystatechange = function() {
-<<<<<<< HEAD
-=======
-    console.log(xhttp.responseText)
->>>>>>> f55d16d26ab1b116d932a50ec19dd7fe6c63f6fb
     if (this.readyState == 4) {
       let content = document.querySelector("#body-content");
       if (this.status == 200) {
