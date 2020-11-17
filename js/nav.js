@@ -28,6 +28,8 @@ document.addEventListener("DOMContentLoaded", function() {
               // Tutup sidenav
               let sidenav = document.querySelector(".sidenav");
               M.Sidenav.getInstance(sidenav).close();
+              // Muat konten halaman yang dipanggil
+              let page = event.target.getAttribute("href").substr(1);
             });
           });
       }
@@ -36,21 +38,47 @@ document.addEventListener("DOMContentLoaded", function() {
     xhttp.send();
   }
 
-  // Load page content
-  let page = window.location.pathname;
-  if(page === "" ) {
-    page = "home";
-    loadPage(page);
-  } 
+window.addEventListener('hashchange', function(){
+  loadPage();
+})
 
-  function loadPage(page) {
-    // fetch('pages/' + page + '.html')
+  // Load page content
+  let page = window.location.hash.substr(1);
+  if (page == "") page = "home";
+  loadPage(page);
+
+  function loadPage(pageTemp) {
+    let page;
+    if(window.location.hash.substr(1) === "") {
+      page === "home";
+      requestPage(pageTemp);
+    } else if(window.location.hash.substr(1) === "ligachampions" || window.location.hash.substr(1) === "liga2021" || window.location.hash.substr(1) === "liga2014" || window.location.hash.substr(1) === "liga2019") {
+      page = "klasemen";
+      requestPage(page);
+    } else if(window.location.hash.substr(1) === "saved") {
+      page = "saved";
+      requestPage(page);
+    } else if(window.location.hash.substr(1,10) === "detailteam") {
+      page = "detail-team";
+      requestPage(page);
+    } else if (window.location.hash.substr(1,18) === "jadwalpertandingan") {
+      page = "jadwal-pertandingan";
+      requestPage(page);
+    } else {
+      page = "404";
+      requestPage(page);
+    }
+  }
+});
+
+function requestPage(page) {
     let xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function() {
       if (this.readyState == 4) {
         let content = document.querySelector("#body-content");
         if (this.status == 200) {
           content.innerHTML = xhttp.responseText;
+          requestApi();
         } else if (this.status == 404) {
           content.innerHTML = "<p>Halaman tidak ditemukan.</p>";
         } else {
@@ -58,7 +86,66 @@ document.addEventListener("DOMContentLoaded", function() {
         }
       }
     };
+
     xhttp.open("GET", "pages/" + page + ".html", true);  
     xhttp.send();
+}
+
+function requestApi() {
+  let apiRequestTo = window.location.hash.substr(1);
+  let idTeam = window.location.hash.substr(15,window.location.length);
+  switch (apiRequestTo) {
+    case 'home': 
+    case ' ' : 
+    case '' : 
+      showHome();
+      break; 
+    case 'liga2021' : 
+      getKlasemenLiga('2021');
+      break; 
+    case 'liga2014' : 
+      getKlasemenLiga('2014');
+      break; 
+    case 'liga2019' :
+      getKlasemenLiga('2019');
+      break; 
+    case 'ligachampions' : 
+      getKlasemenLigaChampion();
+      break;
+    case 'saved' : 
+      getSavedFavoritTeams();
+      break;
+    default:
+      if(window.location.hash.substr(1,10) === "detailteam") {
+        let teamId = window.location.hash.substr(15,window.location.length);
+        let urlsParams = new URLSearchParams(window.location.search);
+        let isFromSaved = urlsParams.get('saved');
+        let btnSave = document.getElementById('save');
+        let item = '';
+
+        if(window.location.hash.substr(18,window.location.length) === "saved=true") {
+          // Hide fab jika dimuat dari indexed db
+          btnSave.style.display = 'none';
+          // Ambil artikel lalu tampilkan
+          getSavedFavoritTeamId();
+        } else {
+          item = getDetailTeam(Number(teamId));
+        }
+      
+        btnSave.onclick = function() {
+          console.log('Tombol FAB di Klik');
+          item.then(function(article) {
+            saveForLater(article);
+            showNotifikasiGambar(article);
+          });
+        }
+      } else if (window.location.hash.substr(1,18) === "jadwalpertandingan" ) {
+          getJadwalPertandingan(Number(window.location.hash.slice(23)));  
+      } else {
+        alert('klasemen Tidak Ditemukan');
+      }
+      break;
   }
-});
+}
+
+
